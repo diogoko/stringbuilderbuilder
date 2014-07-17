@@ -1,0 +1,68 @@
+<DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8"/>
+		<title>StringBuilder Builder</title>
+		<style>
+		
+		body, input {
+			background: #eef2ff;
+			font-family: Verdana, Arial, sans-serif;
+			font-size: 12px;
+		}
+		
+		textarea {
+			background: white;
+			border-color: #bbcbff;
+			border-radius: 3px;
+			border-style: solid;
+			border-width: 2px;
+			box-sizing: border-box;
+			color: black;
+			font-family: Consolas, "Courier New", monospace;
+			height: 40%;
+			margin: 2em 5%;
+			width: 90%;
+		}
+		
+		textarea:first-child {
+		}
+		
+		h1 {
+			color: darkgray;
+		}
+		
+		</style>
+	</head>
+	<body>
+		<textarea id="input"></textarea>
+		
+		<textarea id="output" readonly></textarea>
+		
+		<script>
+		
+		function updateOutput() {
+			var input = document.getElementById("input").value;
+			var output = convertToJavaStringBuilder(input);
+			document.getElementById("output").value = output;
+		}
+		
+		function convertToJavaStringBuilder(text) {
+			var lines = text.split(/\r?\n/g);
+			lines = lines.map(function(line) {
+				return 'sb.append("' + escapeJavaString(line) + '");';
+			});
+			
+			lines.unshift("StringBuilder sb = new StringBuilder();");
+			return lines.join("\n");
+		}
+		
+		function escapeJavaString(text) {
+			return text.replace(/"/g, '\\"');
+		}
+		
+		setInterval(updateOutput, 1000);
+		
+		</script>
+	</body>
+</html>

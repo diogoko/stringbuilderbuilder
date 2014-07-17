@@ -46,7 +46,7 @@
 		function convertToJavaStringBuilder(text) {
 			var lines = text.split(/\r?\n/g);
 			lines = lines.map(function(line) {
-				return 'sb.append("' + escapeJavaString(line) + '");';
+				return 'sb.append("' + escapeJavaString(line) + '\\n");';
 			});
 			
 			lines.unshift("StringBuilder sb = new StringBuilder();");

@@ -24,33 +24,82 @@
 			margin: 2em 5%;
 			width: 90%;
 		}
+
+		form {
+			font-size: 28px;
+			margin: 0 5%;
+			text-align: center;
+			width: 90%;
+		}
+
+		select {
+			font-size: 18px;
+		}
 		
 		</style>
 	</head>
 	<body>
 		<textarea id="input"></textarea>
 		
+		<form>
+			&rarr;
+			<select id="target">
+				<option value="java">Java StringBuilder</option>
+				<option value="js_join_single">JavaScript join array (')</option>
+				<option value="js_join_double">JavaScript join array (")</option>
+			</select>
+		</form>
+
 		<textarea id="output" readonly></textarea>
 		
 		<script>
 		
 		function updateOutput() {
+			var target = document.getElementById("target").value;
+			var converter = ({
+				java: convertToJavaStringBuilder,
+				js_join_single: createConvertToJavaScriptJoinArray("'", escapeJavaScriptSingle),
+				js_join_double: createConvertToJavaScriptJoinArray('"', escapeJavaScriptDouble),
+			})[target];
+
 			var input = document.getElementById("input").value;
-			var output = convertToJavaStringBuilder(input);
-			document.getElementById("output").value = output;
+			var lines = input.split(/\r?\n/g);
+			var outputLines = converter(lines);
+			document.getElementById("output").value = outputLines.join("\n");
 		}
 		
-		function convertToJavaStringBuilder(text) {
-			var lines = text.split(/\r?\n/g);
+		function convertToJavaStringBuilder(lines) {
 			lines = lines.map(function(line) {
 				return 'sb.append("' + escapeJavaString(line) + '\\n");';
 			});
 			
 			lines.unshift("StringBuilder sb = new StringBuilder();");
-			return lines.join("\n");
+			return lines;
+		}
+		
+		function createConvertToJavaScriptJoinArray(stringDelimiter, escapingFunction) {
+			return function (lines) {
+				var lastLineIndex = lines.length - 1;
+				lines = lines.map(function(line, index) {
+					return '    ' + stringDelimiter + escapingFunction(line) + '\\n' + stringDelimiter
+						+ (index == lastLineIndex ? '' : ',');
+				});
+				
+				lines.unshift("[");
+				lines.push("].join(" + stringDelimiter + "\\n" + stringDelimiter + ")");
+				return lines;
+			}
 		}
 		
 		function escapeJavaString(text) {
+			return text.replace(/"/g, '\\"');
+		}
+
+		function escapeJavaScriptSingle(text) {
+			return text.replace(/'/g, "\\'");
+		}
+
+		function escapeJavaScriptDouble(text) {
 			return text.replace(/"/g, '\\"');
 		}
 		
